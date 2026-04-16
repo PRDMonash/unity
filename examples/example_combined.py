@@ -38,15 +38,12 @@ def example_basic_combined():
     print("=" * 60)
     
     user_name = input("Enter your name: ").strip() or "User"
-    protocol_path = input("Enter path to OT-2 protocol: ").strip()
+    protocol_path = r"C:\Users\Public\ot-2-plate-reader-python\lach\unity\examples\dummy_ot2_protocol.py"
     wavelength = int(input("Enter measurement wavelength (nm) [600]: ").strip() or "600")
     
     if not os.path.exists(protocol_path):
         print(f"Error: Protocol file not found: {protocol_path}")
         return
-    
-    print("\nPlease start Nano_Control_Client.py in 32-bit Python.")
-    input("Press Enter when ready...")
     
     # Connect to both instruments
     with OT2Instrument() as ot2, PlateReaderInstrument(auto_launch=True) as reader:
@@ -68,8 +65,7 @@ def example_basic_combined():
         
         print(f"\nExperiment: {exp.metadata.experiment_name}")
         print(f"Output: {exp.metadata.output_directory}")
-        
-        input("\nPress Enter to start...")
+
         metadata = exp.run()
         
         print("\n" + "=" * 60)
@@ -300,8 +296,8 @@ def example_temperature_ramp():
         # ot2.upload_protocol("dummy_ot2_protocol.py")
         # ot2.run_protocol("dummy_ot2_protocol.py")
         reader.set_temperature(25.0)
-        reader.wait_for_stable_temperature(25.0, 0.2, 30)
-        reader.run_measurement(600, r"C:\Users\lachi\OneDrive\Documents\Uni\PhD\Python\ot2\experiment_output")
+        # reader.wait_for_stable_temperature(25.0, 0.2, 30)
+        reader.run_measurement(600, r"C:\Users\Public\ot-2-plate-reader-python\lach\unity\examples\experiment_output")
 
 
 if __name__ == "__main__":

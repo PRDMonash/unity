@@ -14,9 +14,9 @@ from typing import List, Tuple
 class OT2Config:
     """Configuration for OT-2 robot connection."""
     
-    hostname: str = "169.254.80.171"
+    hostname: str = "169.254.21.69"
     username: str = "root"
-    ssh_key_path: str = r"C:\Users\lachi\OneDrive\Documents\ot2_ssh_key"
+    ssh_key_path: str = r"C:\Users\PRD-OT2\ot2_ssh_key"
     protocol_dest: str = "/data/user_storage/prd_protocols"
     ssh_passphrase: str = ""  # Empty if no passphrase
 
@@ -77,7 +77,7 @@ class PlateReaderConfig:
     server: ServerConfig = None
     
     # 32-bit client settings
-    python_32_path: str = r"C:\Users\lachi\AppData\Local\Programs\Python\Python311-32\python.exe"
+    python_32_path: str = r"C:\Users\Public\Python-32\python.exe"
     client_script_path: str = ""  # Auto-detected if empty
     auto_launch: bool = False
     connection_timeout: float = 60.0

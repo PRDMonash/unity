@@ -271,7 +271,7 @@ def get_csv():
     :return: The file path of the most recent CSV file.
     """
     # Specify the directory where CSV files are saved
-    data_directory = r"C:\Users\lachi\OneDrive\Documents\UV-Vis Data"
+    data_directory = r"C:\Users\Public\UV_VIS_DATA"
 
     # Get the most recent CSV file
     recent_csv = get_most_recent_csv(data_directory)
@@ -307,8 +307,8 @@ def measurements(bmg, protocol_name: str = 'Empty Plate Reading'):
     # Define protocol parameters
     # protocol_name = 'Empty Plate Reading'
 
-    test_runs_path = r"C:\Program Files (x86)\BMG\SPECTROstar Nano\User\Definit"
-    data_output_path = r"C:\Program Files (x86)\BMG\SPECTROstar Nano\User\Data"
+    test_runs_path = r"C:\Users\Public\BMG\SPECTROstar Nano\User\Definit"
+    data_output_path = r"C:\Users\Public\BMG\SPECTROstar Nano\User\Data"
 
     bmg.run_protocol(protocol_name, test_runs_path, data_output_path)
 

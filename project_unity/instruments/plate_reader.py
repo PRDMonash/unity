@@ -21,7 +21,7 @@ from pathlib import Path
 from typing import Optional, Tuple, List
 from datetime import datetime
 
-from ..config import ServerConfig, get_default_server_config
+from ..config import ServerConfig, PlateReaderConfig, get_default_server_config
 from ..utils.logging import log_msg
 from .base import BaseInstrument, InstrumentStatus
 
@@ -62,8 +62,8 @@ class PlateReaderInstrument(BaseInstrument):
     
     # Default paths - can be overridden
     DEFAULT_CLIENT_SCRIPT = Path(__file__).parent.parent.parent / "Nano_Control_Client.py"
-    DEFAULT_PYTHON_32 = r"C:\Users\lachi\AppData\Local\Programs\Python\Python311-32\python.exe"  # Common 32-bit Python location
-    
+    DEFAULT_PYTHON_32 = PlateReaderConfig.python_32_path
+
     def __init__(
         self,
         config: Optional[ServerConfig] = None,
