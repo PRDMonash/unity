@@ -30,6 +30,9 @@ Desktop.ini
 # Plate reader client logs
 client_log_*.txt
 
+# User-local 32-bit client config (copy from nano_client_config.example.json)
+nano_client_config.json
+
 # Experiment output data
 experiment_output/
 

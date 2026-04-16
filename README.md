@@ -119,6 +119,14 @@ Install 32-bit dependencies (in the 32-bit Python environment):
 <path-to-32bit-python>\python.exe -m pip install -r requirements_32.txt
 ```
 
+Then create your local 32-bit client config (one-time):
+
+```bash
+copy nano_client_config.example.json nano_client_config.json
+```
+
+Edit it to match your BMG SPECTROstar install paths and server port. See [The 32-Bit Plate Reader Client](#the-32-bit-plate-reader-client) for the full field reference.
+
 ---
 
 ## Core Concepts
@@ -649,6 +657,65 @@ The BMG SPECTROstar Nano exposes its API through ActiveX COM, which only works i
 └──────────────────────┘                   └──────────────────────────┘
 ```
 
+### Configuring the client (one-time setup)
+
+The 32-bit client is intentionally standalone — it does **not** import `project_unity` (the package's dependencies live in your 64-bit Python). All paths and connection settings are read from a JSON config file. To configure the client for your machine:
+
+1. Copy the template:
+
+   ```bash
+   copy nano_client_config.example.json nano_client_config.json
+   ```
+
+2. Edit `nano_client_config.json` to match your BMG install. The defaults work for a stock install; only change what differs on your machine:
+
+   ```json
+   {
+       "server":     { "host": "localhost", "port": 65432 },
+       "connection": { "max_retries": 30, "retry_delay_seconds": 1 },
+       "bmg": {
+           "control_name":     "SPECTROstar Nano",
+           "test_runs_path":   "C:\\Users\\Public\\BMG\\SPECTROstar Nano\\User\\Definit",
+           "data_output_path": "C:\\Users\\Public\\BMG\\SPECTROstar Nano\\User\\Data",
+           "csv_output_dir":   "C:\\Users\\Public\\UV_VIS_DATA"
+       },
+       "logging":    { "log_dir": "" }
+   }
+   ```
+
+   `nano_client_config.json` is git-ignored so each user's settings stay local.
+
+| Field | Description |
+|---|---|
+| `server.host`, `server.port` | Where the 64-bit `PlateReaderInstrument` server is listening. **Must match `ServerConfig`** in your 64-bit script. |
+| `connection.max_retries`, `connection.retry_delay_seconds` | How long the client waits for the server to come up before giving up. |
+| `bmg.control_name` | Instrument name as registered in BMG MARS (e.g. `"SPECTROstar Nano"`). |
+| `bmg.test_runs_path` | Folder containing pre-defined BMG protocol files. |
+| `bmg.data_output_path` | Folder where the BMG software writes raw run files. |
+| `bmg.csv_output_dir` | Folder where the BMG software exports CSV results. The client picks the most recent CSV from here after each run. |
+| `logging.log_dir` | Where to write `client_log_*.txt` files. Empty = next to `Nano_Control_Client.py`. |
+
+### Override sources (in order of precedence)
+
+1. `DEFAULT_CONFIG` defined at the top of `Nano_Control_Client.py`
+2. `nano_client_config.json` next to the script
+3. JSON file pointed to by the `NANO_CLIENT_CONFIG` environment variable
+4. JSON file passed via `--config <path>`
+5. Individual flags: `--host`, `--port`, `--control-name`
+
+```bash
+:: Use the default config file
+C:\Python311-32\python.exe Nano_Control_Client.py
+
+:: Override the port for a one-off run
+C:\Python311-32\python.exe Nano_Control_Client.py --port 65500
+
+:: Use an alternate config file entirely
+C:\Python311-32\python.exe Nano_Control_Client.py --config configs\machine_b.json
+```
+
+### Launching the client
+
 **Option A — Manual launch** (default):
 
 1. Open a terminal and run:
@@ -686,9 +753,11 @@ The client script location is auto-detected relative to the package, but can be 
 
 | Symptom | Fix |
 |---|---|
-| `No client connection within 60s` | Ensure `Nano_Control_Client.py` is running in **32-bit** Python. Check that the port (default 65432) is not blocked. |
+| `No client connection within 60s` | Ensure `Nano_Control_Client.py` is running in **32-bit** Python. Check that the port (default 65432) is not blocked, and that `server.port` in `nano_client_config.json` matches `ServerConfig.port` in your 64-bit script. |
 | `pywin32` import error in client | Install `pywin32` in the 32-bit Python: `python -m pip install pywin32`. |
 | Measurement timeout | The plate reader may be busy. Increase `measurement_timeout` in `PlateReaderConfig` or the `timeout` parameter on `run_measurement()`. |
+| `No CSV files found in the directory` | The path in `bmg.csv_output_dir` does not match where BMG MARS exports CSV results. Update `nano_client_config.json` to point at the correct folder. |
+| `Instantiation failed` / COM error on startup | The `bmg.control_name` in your config does not match the instrument name registered in BMG MARS. Open MARS to confirm the exact name. |
 
 ### Lumidox
 

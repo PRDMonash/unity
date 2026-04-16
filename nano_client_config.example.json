@@ -1,0 +1,19 @@
+{
+    "server": {
+        "host": "localhost",
+        "port": 65432
+    },
+    "connection": {
+        "max_retries": 30,
+        "retry_delay_seconds": 1
+    },
+    "bmg": {
+        "control_name": "SPECTROstar Nano",
+        "test_runs_path": "C:\\Users\\Public\\BMG\\SPECTROstar Nano\\User\\Definit",
+        "data_output_path": "C:\\Users\\Public\\BMG\\SPECTROstar Nano\\User\\Data",
+        "csv_output_dir": "C:\\Users\\Public\\UV_VIS_DATA"
+    },
+    "logging": {
+        "log_dir": ""
+    }
+}
