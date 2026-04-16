@@ -1,0 +1,48 @@
+======================================================================
+BMG SPECTROstar Nano Client Log
+Started: 2026-04-15 16:45:10
+Python: 3.11.9 (tags/v3.11.9:de54cf5, Apr  2 2024, 10:00:00) [MSC v.1938 32 bit (Intel)]
+Platform: win32
+======================================================================
+
+[2026-04-15 16:45:10] ============================================================
+[2026-04-15 16:45:10] BMG SPECTROstar Nano Client Starting
+[2026-04-15 16:45:10] ============================================================
+[2026-04-15 16:45:10] Initializing BMG COM object...
+[2026-04-15 16:45:11] COM object created successfully.
+[2026-04-15 16:45:11] Connected to SPECTROstar Nano successfully.
+[2026-04-15 16:45:11] Software version: 1.11
+[2026-04-15 16:45:11] Attempting to connect to server (max 30 attempts)...
+[2026-04-15 16:45:11] Connected to server on attempt 1.
+[2026-04-15 16:45:12] Plate ejected from the reader.
+[2026-04-15 16:45:12] Awaiting message from server
+[2026-04-15 16:45:14] Temperature set to 25.0.
+[2026-04-15 16:45:14] Awaiting message from server
+[2026-04-15 16:45:14] Awaiting message from server
+[2026-04-15 16:45:19] Awaiting message from server
+[2026-04-15 16:45:24] Awaiting message from server
+[2026-04-15 16:45:30] Awaiting message from server
+[2026-04-15 16:45:35] Awaiting message from server
+[2026-04-15 16:45:40] Awaiting message from server
+[2026-04-15 16:45:45] Awaiting message from server
+[2026-04-15 16:45:50] Awaiting message from server
+[2026-04-15 16:45:55] Awaiting message from server
+[2026-04-15 16:46:00] Awaiting message from server
+[2026-04-15 16:46:05] Awaiting message from server
+[2026-04-15 16:46:10] Awaiting message from server
+[2026-04-15 16:46:15] Awaiting message from server
+[2026-04-15 16:46:20] Awaiting message from server
+[2026-04-15 16:46:25] Awaiting message from server
+[2026-04-15 16:46:30] Instrument Status: Ready
+[2026-04-15 16:46:37] Plate inserted into the reader.
+[2026-04-15 16:46:37] Instrument Status: Ready
+[2026-04-15 16:48:10] Protocol '600nm' completed successfully.
+[2026-04-15 16:48:10] Awaiting message from server
+[2026-04-15 16:48:10] Received signal from the server to shut down client.
+[2026-04-15 16:48:10] Finished communication with 64-bit script.
+[2026-04-15 16:48:10] Disconnecting...
+[2026-04-15 16:48:10] Disconnected.
+[2026-04-15 16:48:10] ============================================================
+[2026-04-15 16:48:10] Client session ended
+[2026-04-15 16:48:10] ============================================================
+[2026-04-15 16:48:10] Full log saved to: c:\Users\lachi\OneDrive\Documents\Uni\PhD\Python\ot2\ot2_platereader_control\client_log_2026-04-15_16-45-10.txt
