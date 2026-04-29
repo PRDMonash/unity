@@ -271,6 +271,71 @@ class OT2Instrument(BaseInstrument):
         except Exception as e:
             log_msg(f"Error running protocol: {e}")
             return False
+
+    def simulate_protocol(
+            self,
+            protocol_name: str,
+            timeout: float = 3600.0
+    ) -> bool:
+        """
+        Simulate a protocol on the OT-2.
+
+        The protocol must already be uploaded to the OT-2.
+
+        Args:
+            protocol_name: Name of the protocol file to simulate.
+            timeout: Maximum time to wait for protocol completion (seconds).
+
+        Returns:
+            True if protocol completed successfully.
+        """
+        if not self._ssh or not self._connected:
+            raise RuntimeError("Not connected to OT-2")
+
+        protocol_path = f"'{self.config.protocol_dest}/{protocol_name}'"
+        command = f'sh -l -c "opentrons_simulate {protocol_path}"'
+
+        log_msg(f"Simulating OT-2 protocol: {protocol_name}")
+
+        try:
+            stdin, stdout, stderr = self._ssh.exec_command(command)
+
+            complete = False
+            start_time = time.time()
+            full_output = []
+
+            while True:
+                # Check timeout
+                if time.time() - start_time > timeout:
+                    log_msg("Protocol simulation timed out")
+                    return False
+
+                line = stdout.readline()
+                if not line:
+                    break
+
+                print(line, end='')
+                full_output.append(line)
+
+                if "Protocol Finished" in line:
+                    log_msg("Protocol completed successfully.")
+                    complete = True
+                    break
+
+                time.sleep(0.1)
+
+            # Check if we missed the completion message
+            if not complete and ' Protocol Finished\n' in full_output:
+                complete = True
+
+            if not complete:
+                log_msg("Protocol end not detected in output.")
+
+            return complete
+
+        except Exception as e:
+            log_msg(f"Error running protocol: {e}")
+            return False
     
     def run_protocol_with_upload(
         self,
