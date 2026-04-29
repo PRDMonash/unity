@@ -13,12 +13,19 @@ from typing import List, Tuple
 @dataclass
 class OT2Config:
     """Configuration for OT-2 robot connection."""
-    
+
     hostname: str = "169.254.21.69"
     username: str = "root"
     ssh_key_path: str = r"C:\Users\PRD-OT2\ot2_ssh_key"
     protocol_dest: str = "/data/user_storage/prd_protocols"
     ssh_passphrase: str = ""  # Empty if no passphrase
+
+    #: Protocol API passed to execute.get_protocol_api(); must satisfy your protocols apiLevel/requirements.
+    api_level: str = "2.15"
+    #: Keep one SSH shell + warmed Python interpreter and reuse execute.get_protocol_api context (faster repeats).
+    use_persistent_execution: bool = True
+    #: Use lazy simulate.get_protocol_api in that same interpreter instead of subprocess opentrons_simulate.
+    warm_simulate: bool = False
 
 
 @dataclass
