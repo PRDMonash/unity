@@ -2,12 +2,14 @@
 OT-2 liquid handling robot instrument.
 
 Provides high-level control of the Opentrons OT-2 via the Robot HTTP API
-(default http://<hostname>:31950), including protocol upload and execution.
+(default http://<hostname>:31950) for protocol registration and runs.
+Auxiliary file transfers use SCP (see OT2Config ``protocol_dest``, SSH key).
 """
 
 from __future__ import annotations
 
 import os
+import subprocess
 import time
 from typing import Any, Dict, List, Optional
 
@@ -31,8 +33,9 @@ class OT2Instrument(BaseInstrument):
     """
     Opentrons OT-2 liquid handling robot.
 
-    Uses the Robot HTTP API (Opentrons-Version header, port 31950 by default)
-    to upload protocols, create runs, play them, and poll until completion.
+    Uses HTTP for the main protocol ``.py`` (POST /protocols), runs, and
+    execution. Non-protocol files (``upload_file``, ``additional_files`` in
+    ``run_protocol_with_upload``) are copied with SCP to ``protocol_dest``.
 
     If you press Ctrl+C in the terminal while a protocol run is polling,
     the client sends a ``stop`` run action, waits (up to about three minutes)
@@ -197,6 +200,35 @@ class OT2Instrument(BaseInstrument):
             return files[0].get("name")
         return None
 
+    def _scp_upload_file(self, local_path: str) -> bool:
+        """Copy a single local file to ``protocol_dest`` on the robot via SCP."""
+        if not os.path.exists(local_path):
+            log_msg(f"File not found: {local_path}")
+            return False
+        cmd: List[str] = [
+            "scp",
+            "-i",
+            self.config.ssh_key_path,
+        ]
+        if self.config.scp_force_legacy:
+            cmd.append("-O")
+        cmd.extend(
+            [
+                local_path,
+                f"{self.config.username}@{self.config.hostname}:{self.config.protocol_dest}",
+            ]
+        )
+        try:
+            log_msg(f"SCP upload: {os.path.basename(local_path)} -> {self.config.protocol_dest}")
+            subprocess.run(cmd, check=True, text=True, capture_output=True)
+            log_msg("SCP upload successful.")
+            return True
+        except subprocess.CalledProcessError as e:
+            log_msg(f"SCP upload failed: {e}")
+            if e.stderr:
+                log_msg(f"stderr: {e.stderr.strip()}")
+            return False
+
     def _upload_multipart(self, local_paths: List[str], key: Optional[str] = None) -> Optional[str]:
         self._require_session()
         handles = []
@@ -252,18 +284,24 @@ class OT2Instrument(BaseInstrument):
 
     def upload_protocol(self, local_path: str) -> bool:
         """
-        Upload a protocol file to the OT-2 via POST /protocols.
+        Upload the main protocol ``.py`` to the OT-2 via POST /protocols (HTTP).
 
-        Optional supporting labware JSON files should be included in the same
-        upload via run_protocol_with_upload.
+        CSVs, extra Python modules, or labware JSON used at runtime should be
+        transferred with ``upload_file`` (SCP) unless you bundle them in a
+        single HTTP upload elsewhere.
         """
         key = os.path.basename(local_path)
         pid = self._upload_multipart([local_path], key=key)
         return pid is not None
 
     def upload_file(self, local_path: str) -> bool:
-        """Alias for upload_protocol for clarity."""
-        return self.upload_protocol(local_path)
+        """
+        Upload an auxiliary file via SCP to ``protocol_dest`` on the robot.
+
+        Uses ``username``, ``hostname``, ``ssh_key_path``, ``protocol_dest``,
+        and optionally ``scp_force_legacy`` (-O) from ``OT2Config``.
+        """
+        return self._scp_upload_file(local_path)
 
     def _list_protocol_resources(self) -> List[dict]:
         body = self._get_json("/protocols")
@@ -425,9 +463,17 @@ class OT2Instrument(BaseInstrument):
                         errs = run.get("errors") or []
                         if isinstance(errs, list) and errs:
                             log_msg(
-                                f"Run finished with {len(errs)} error record(s)."
+                                f"Run finished with {len(errs)} error record(s):"
                             )
+                            for i, err in enumerate(errs, 1):
+                                # Attempt to extract the error details (may be 'detail', 'error', or just str)
+                                if isinstance(err, dict):
+                                    msg = err.get("detail") or err.get("error") or str(err)
+                                else:
+                                    msg = str(err)
+                                log_msg(f"  Error {i}: {msg}")
                         return ok
+                 
                 except requests.RequestException as e:
                     log_msg(f"Polling run failed: {e}")
                 time.sleep(0.5)
@@ -528,13 +574,19 @@ class OT2Instrument(BaseInstrument):
         additional_files: Optional[list] = None,
         timeout: float = 3600.0,
     ) -> bool:
-        paths = [protocol_path]
-        if additional_files:
-            paths.extend(additional_files)
+        """
+        Register the protocol over HTTP, copy any ``additional_files`` via SCP,
+        then start the run over HTTP.
+        """
         key = os.path.basename(protocol_path)
-        protocol_id = self._upload_multipart(paths, key=key)
+        protocol_id = self._upload_multipart([protocol_path], key=key)
         if not protocol_id:
             return False
+        if additional_files:
+            for file_path in additional_files:
+                if not self._scp_upload_file(file_path):
+                    log_msg(f"Failed to SCP auxiliary file: {file_path}")
+                    return False
         return self._run_by_protocol_id(protocol_id, timeout)
 
     def list_protocols(self) -> list:

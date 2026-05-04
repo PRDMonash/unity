@@ -14,17 +14,22 @@ from typing import List, Optional, Tuple
 class OT2Config:
     """Configuration for OT-2 robot connection.
 
-    OT2Instrument uses the Robot HTTP API (hostname, http_port, etc.).
-    Fields username, ssh_key_path, ssh_passphrase, and protocol_dest are
-    kept for backward compatibility (e.g. ot2_ssh.py) and are ignored by
-    OT2Instrument.
+    OT2Instrument uses the Robot HTTP API on ``hostname`` / ``http_port`` for
+    health checks, protocol upload (``.py`` main file), runs, and execution.
+
+    ``username``, ``ssh_key_path``, ``protocol_dest``, and ``scp_force_legacy``
+    are used for SCP transfers of auxiliary files (see ``upload_file`` and
+    ``run_protocol_with_upload(..., additional_files=...)``). The SSH host is
+    ``hostname`` (same as the HTTP robot address). ``ssh_passphrase`` is not
+    passed to ``scp``; use an unencrypted key or ssh-agent if needed.
     """
 
     hostname: str = "169.254.21.69"
     username: str = "root"
     ssh_key_path: str = r"C:\Users\PRD-OT2\ot2_ssh_key"
     protocol_dest: str = "/data/user_storage/prd_protocols"
-    ssh_passphrase: str = ""  # Empty if no passphrase
+    ssh_passphrase: str = ""  # Not used by SCP subprocess; use ssh-agent if needed
+    scp_force_legacy: bool = True  # Pass ``-O`` to scp (helps on some Windows OpenSSH builds)
 
     http_port: int = 31950
     use_https: bool = False
