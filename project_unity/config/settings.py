@@ -6,19 +6,32 @@ and experiment parameters. These replace hardcoded values scattered
 throughout the codebase.
 """
 
-from dataclasses import dataclass, field
-from typing import List, Tuple
+from dataclasses import dataclass
+from typing import List, Optional, Tuple
 
 
 @dataclass
 class OT2Config:
-    """Configuration for OT-2 robot connection."""
-    
+    """Configuration for OT-2 robot connection.
+
+    OT2Instrument uses the Robot HTTP API (hostname, http_port, etc.).
+    Fields username, ssh_key_path, ssh_passphrase, and protocol_dest are
+    kept for backward compatibility (e.g. ot2_ssh.py) and are ignored by
+    OT2Instrument.
+    """
+
     hostname: str = "169.254.21.69"
     username: str = "root"
     ssh_key_path: str = r"C:\Users\PRD-OT2\ot2_ssh_key"
     protocol_dest: str = "/data/user_storage/prd_protocols"
     ssh_passphrase: str = ""  # Empty if no passphrase
+
+    http_port: int = 31950
+    use_https: bool = False
+    opentrons_api_version: str = "*"
+    verify_tls: bool = True
+    request_timeout_s: float = 30.0
+    robot_token: Optional[str] = None
 
 
 @dataclass

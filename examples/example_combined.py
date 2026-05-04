@@ -6,7 +6,7 @@ together in a coordinated workflow. The OT-2 prepares samples,
 and the plate reader measures them.
 
 Requirements:
-    - OT-2 robot connected and accessible via SSH
+    - OT-2 reachable on the Robot HTTP API (default port 31950)
     - BMG SPECTROstar Nano plate reader connected
     - 32-bit Python with Nano_Control_Client.py
 

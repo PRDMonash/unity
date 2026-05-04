@@ -6,8 +6,8 @@ using the plate reader. Useful for sample preparation, liquid
 handling, or any OT-2-only workflow.
 
 Requirements:
-    - OT-2 robot connected and accessible via SSH
-    - SSH key configured in OT2Config
+    - OT-2 reachable on the Robot HTTP API (default port 31950)
+    - Set OT2Config.hostname (and optionally http_port) if needed
 
 Usage:
     python example_ot2_only.py
@@ -111,10 +111,8 @@ def example_custom_config():
     
     # Create custom config for a different OT-2
     custom_config = OT2Config(
-        hostname="192.168.1.100",  # Different IP
-        username="root",
-        ssh_key_path=r"C:\path\to\your\ssh_key",
-        protocol_dest="/data/user_storage/protocols"
+        hostname="192.168.1.100",  # Robot IP or hostname
+        http_port=31950,
     )
     
     print(f"Connecting to OT-2 at {custom_config.hostname}")
