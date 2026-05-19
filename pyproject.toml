@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "project-unity"
+version = "0.1.0"
+description = "Modular OT2, Plate Reader, and Lumidox control library"
+authors = [
+    { name = "Lachlan Alexander" }
+]
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "paramiko",
+    "requests",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+# Explicitly tell setuptools to only install the project_unity folder as the package.
+# This prevents it from trying to install the 'examples' folder or root scripts.
+include = ["project_unity", "project_unity.*"]

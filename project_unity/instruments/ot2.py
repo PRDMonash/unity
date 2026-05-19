@@ -229,6 +229,41 @@ class OT2Instrument(BaseInstrument):
                 log_msg(f"stderr: {e.stderr.strip()}")
             return False
 
+    def _scp_download_file(self, OT2_path: str, out_path: str = None):
+        """Copy a sigle file from the OT2s storage to a given local path via SCP."""
+        if not os.path.dirname(OT2_path):
+            OT2_path = f"{self.config.protocol_dest}/{OT2_path}" # Defends against incomplete input where only filename is specified. 
+        if not os.path.exists(OT2_path): 
+            log_msg(f"File not found: {OT2_path}")
+            return False
+        if not out_path:
+            out_path = os.path.basename(OT2_path) # Defaults to execution dir.
+
+        cmd: List[str] = [
+            "scp",
+            "-i",
+            self.config.ssh_key_path,
+        ]
+        if self.config.scp_force_legacy:
+            cmd.append("-O")
+
+        cmd.extend(
+            [
+                f"{self.config.username}@{self.config.hostname}:{OT2_path}",
+                out_path
+            ]
+        )
+        try:
+            log_msg(f"SCP download: {os.path.basename(OT2_path)} -> {out_path}")
+            subprocess.run(cmd, check=True, text=True, capture_output=True)
+            log_msg("SCP download successful.")
+            return True
+        except subprocess.CalledProcessError as e:
+            log_msg(f"SCP download failed: {e}")
+            if e.stderr:
+                log_msg(f"stderr: {e.stderr.strip()}")
+            return False
+
     def _upload_multipart(self, local_paths: List[str], key: Optional[str] = None) -> Optional[str]:
         self._require_session()
         handles = []
@@ -302,6 +337,19 @@ class OT2Instrument(BaseInstrument):
         and optionally ``scp_force_legacy`` (-O) from ``OT2Config``.
         """
         return self._scp_upload_file(local_path)
+
+    def download_file(self, OT2_path: str, out_path:str) -> bool:
+        """
+        Downloads an auxiliary file via SCP form the OT2_path on the robot to local.
+
+        Uses ``username``, ``hostname``, ``ssh_key_path``, ``protocol_dest``,
+        and optionally ``scp_force_legacy`` (-O) from ``OT2Config``.
+
+        Args:
+            OT2_path (str): Path of the file to download. Defaults to "protocol_dest"/OT2_path if only filename is given.
+            out_path (str): Output path to wirte the file to. Defaults to executing dir/filename.
+        """
+        return self._scp_download_file(OT2_path, out_path)
 
     def _list_protocol_resources(self) -> List[dict]:
         body = self._get_json("/protocols")
