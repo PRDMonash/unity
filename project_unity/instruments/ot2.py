@@ -233,9 +233,7 @@ class OT2Instrument(BaseInstrument):
         """Copy a sigle file from the OT2s storage to a given local path via SCP."""
         if not os.path.dirname(OT2_path):
             OT2_path = f"{self.config.protocol_dest}/{OT2_path}" # Defends against incomplete input where only filename is specified. 
-        if not os.path.exists(OT2_path): 
-            log_msg(f"File not found: {OT2_path}")
-            return False
+
         if not out_path:
             out_path = os.path.basename(OT2_path) # Defaults to execution dir.
 

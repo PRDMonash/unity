@@ -479,6 +479,12 @@ class LumidoxInstrument(BaseInstrument):
                 f"of {max_current} mA"
             )
 
+        if current_ma < 60:
+            raise ValueError(
+                f"Requested {current_ma} mA exceeds device maximum "
+                f"of {max_current} mA"
+            )
+
         # Enter output mode
         self._get_com_val(b"15", 3)
         time.sleep(0.1)
